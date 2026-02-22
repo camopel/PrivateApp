@@ -1,6 +1,6 @@
 """Science KB — Private App backend.
 
-Routes (mounted at /api/app/skb):
+Routes (mounted at /api/app/akb):
   GET /stats           — DB statistics
   GET /categories      — All arXiv categories with enabled flag
   GET /paper/{id}      — Paper detail with translated abstract
@@ -22,7 +22,7 @@ from fastapi.responses import FileResponse
 
 router = APIRouter()
 
-DEFAULT_DATA_DIR = os.path.expanduser("~/Downloads/ScienceKB")
+DEFAULT_DATA_DIR = os.path.expanduser("~/Downloads/ArXivKB")
 
 # ---------------------------------------------------------------------------
 # LLM config cache (auto-expires after 5 min)
@@ -74,13 +74,13 @@ def _get_llm_config() -> dict:
 # ---------------------------------------------------------------------------
 
 def _get_data_dir() -> str:
-    return os.environ.get("SCIENCEKB_DATA_DIR", DEFAULT_DATA_DIR)
+    return os.environ.get("ARXIVKB_DATA_DIR", DEFAULT_DATA_DIR)
 
 
 def _db_conn() -> sqlite3.Connection:
-    db_path = os.path.join(_get_data_dir(), "sciencekb.db")
+    db_path = os.path.join(_get_data_dir(), "arxivkb.db")
     if not os.path.exists(db_path):
-        raise HTTPException(404, detail="ScienceKB database not found. Run: skb ingest")
+        raise HTTPException(404, detail="ArXivKB database not found. Run: skb ingest")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
@@ -276,7 +276,7 @@ async def science_search(
 ):
     """Semantic search over paper abstracts via FAISS, fallback to text search."""
     data_dir = _get_data_dir()
-    db_path = os.path.join(data_dir, "sciencekb.db")
+    db_path = os.path.join(data_dir, "arxivkb.db")
 
     # Try semantic search first
     try:
@@ -285,7 +285,7 @@ async def science_search(
         if scripts_dir not in sys.path:
             sys.path.insert(0, scripts_dir)
         # Also add the skill scripts dir
-        skill_dir = os.path.expanduser("~/.openclaw/workspace/skills/sciencekb/scripts")
+        skill_dir = os.path.expanduser("~/.openclaw/workspace/skills/arxivkb/scripts")
         if skill_dir not in sys.path:
             sys.path.insert(0, skill_dir)
         from search import search as semantic_search
@@ -322,7 +322,7 @@ if __name__ == "__main__":
     import uvicorn
 
     app = FastAPI(title="Science KB")
-    app.include_router(router, prefix="/api/app/skb")
+    app.include_router(router, prefix="/api/app/akb")
 
     dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
     if os.path.isdir(dist):

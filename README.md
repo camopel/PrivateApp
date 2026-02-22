@@ -17,7 +17,7 @@
 | 📊 **System** | Real-time CPU, RAM, disk, GPU stats and service health |
 | 📁 **File Browser** | Browse, preview, and share files from your server |
 | 📰 **Finviz** | Financial headlines by ticker with LLM summaries (requires [finviz-crawler](https://github.com/camopel/OpenSkill/tree/main/finviz-crawler) skill) |
-| 🔬 **ArXiv** | Research paper semantic search with translation (requires [sciencekb](https://github.com/camopel/OpenSkill/tree/main/sciencekb) skill) |
+| 🔬 **ArXiv** | Research paper semantic search with translation (requires [arxivkb](https://github.com/camopel/OpenSkill/tree/main/arxivkb) skill) |
 
 ## Requirements
 
@@ -100,7 +100,7 @@ PrivateApp/
 │   ├── system-monitor/ # System stats + services
 │   ├── file-browser/   # File browsing + preview
 │   ├── finviz-market/  # Financial news
-│   └── science-kb/     # ArXiv papers
+│   └── arxiv-kb/     # ArXiv papers
 ├── scripts/
 │   ├── server.py       # FastAPI entry point
 │   ├── app_loader.py   # Plugin discovery + mounting

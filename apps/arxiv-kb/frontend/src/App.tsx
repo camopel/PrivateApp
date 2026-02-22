@@ -33,7 +33,7 @@ export default function App() {
       fetch(`${API}/categories`).then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([s, c]) => {
       if (s) setStats(s)
-      else setError('ScienceKB database not found. Run: skb ingest')
+      else setError('ArXivKB database not found. Run: skb ingest')
       if (c?.categories) setCategories(c.categories)
       setLoading(false)
     })
