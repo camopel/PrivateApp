@@ -24,9 +24,9 @@ from fastapi import APIRouter, HTTPException, Query, Body
 
 router = APIRouter()
 
-DEFAULT_DB = os.path.expanduser("~/Downloads/Finviz/finviz.db")
-DEFAULT_ARTICLES_DIR = os.path.expanduser("~/Downloads/Finviz/articles")
-FINVIZ_DIR = Path(os.path.expanduser("~/Downloads/Finviz"))
+DEFAULT_DB = os.path.expanduser("~/workspace/finviz/finviz.db")
+DEFAULT_ARTICLES_DIR = os.path.expanduser("~/workspace/finviz/articles")
+FINVIZ_DIR = Path(os.path.expanduser("~/workspace/finviz"))
 SUMMARY_CACHE_DIR = FINVIZ_DIR / "summaries"
 APP_SETTINGS_DIR = Path.home() / ".local" / "share" / "privateapp"
 
