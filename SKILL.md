@@ -48,7 +48,7 @@ apps/my-app/
 **Fields:**
 - `id` — Directory name, must match the folder name in `apps/`
 - `name` — Display name shown on the home screen
-- `shortcode` — **Must be unique across all apps.** Determines the API mount point: `/api/app/{shortcode}/`. Keep it short, lowercase, no hyphens (e.g. `myapp`, `finviz`, `skb`). Two apps with the same shortcode will conflict.
+- `shortcode` — **Must be unique across all apps.** Determines the API mount point: `/api/app/{shortcode}/`. Keep it short, lowercase, no hyphens (e.g. `myapp`, `sysmon`, `files`). Two apps with the same shortcode will conflict.
 - `icon` — Emoji shown on the home screen grid
 - `builtin` — `true` for apps bundled with PrivateApp, `false` for add-ons
 - `frontend_route` — URL path where the SPA is mounted (usually `/app/{id}`)
@@ -264,10 +264,10 @@ from commons.push_client import send_push
 
 # Async (inside a route handler)
 await send_push(
-    title="Price Alert",
-    body="NVDA dropped 5% in the last hour",
-    url="/app/finviz-market/",   # opens this path when tapped
-    tag="nvda-alert",            # replaces previous notification with same tag
+    title="Alert",
+    body="Something important happened",
+    url="/app/system-monitor/",   # opens this path when tapped
+    tag="my-alert",               # replaces previous notification with same tag
 )
 
 # Sync (outside async context, e.g. a cron script)

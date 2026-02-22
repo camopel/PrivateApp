@@ -1,14 +1,6 @@
 # PrivateApp
 
-**PrivateApp** is a personal PWA dashboard for your home server. Install it on your phone's home screen for a native-like app with financial news, research papers, system monitoring, and file browsing — all served privately over Tailscale VPN.
-
-## Screenshots
-
-![Home](docs/screenshots/home.png)
-![System](docs/screenshots/system.png)
-![Files](docs/screenshots/files.png)
-![Finviz](docs/screenshots/finviz.png)
-![ArXiv](docs/screenshots/arxiv.png)
+**PrivateApp** is a personal PWA dashboard for your home server. Install it on your phone's home screen for a native-like app with system monitoring and file browsing — all served privately over Tailscale VPN.
 
 ## Apps
 
@@ -16,8 +8,6 @@
 |-----|-------------|
 | 📊 **System** | Real-time CPU, RAM, disk, GPU stats and service health |
 | 📁 **File Browser** | Browse, preview, and share files from your server |
-| 📰 **Finviz** | Financial headlines by ticker with LLM summaries (requires [finviz-crawler](https://github.com/camopel/OpenSkill/tree/main/finviz-crawler) skill) |
-| 🔬 **ArXiv** | Research paper semantic search with translation (requires [arxivkb](https://github.com/camopel/OpenSkill/tree/main/arxivkb) skill) |
 
 ## Requirements
 
@@ -98,9 +88,7 @@ PrivateApp/
 ├── frontend/           # React + Vite PWA shell
 ├── apps/               # App plugins
 │   ├── system-monitor/ # System stats + services
-│   ├── file-browser/   # File browsing + preview
-│   ├── finviz-market/  # Financial news
-│   └── arxiv-kb/     # ArXiv papers
+│   └── file-browser/   # File browsing + preview
 ├── scripts/
 │   ├── server.py       # FastAPI entry point
 │   ├── app_loader.py   # Plugin discovery + mounting
@@ -114,17 +102,9 @@ PrivateApp/
 **Data:** SQLite
 **Transport:** Tailscale HTTPS
 
-## Development
+## Adding Apps
 
-See **[SKILL.md](SKILL.md)** for the full guide on adding new apps, including backend routes, frontend setup, app.json config, styling conventions, and how the plugin loader works.
-
-```bash
-# Backend
-.venv/bin/python3 scripts/server.py
-
-# Frontend (hot reload, proxies /api to backend)
-cd apps/my-app/frontend && npm install && npm run dev
-```
+PrivateApp supports plugin apps. Drop a new app in `apps/` with an `app.json`, backend routes, and a React frontend. See **[SKILL.md](SKILL.md)** for the full development guide.
 
 ## License
 
