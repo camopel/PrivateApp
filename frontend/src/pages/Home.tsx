@@ -26,8 +26,6 @@ interface AppsResponse {
 const APP_GRADIENTS: Record<string, string> = {
   'system-monitor': 'linear-gradient(135deg, #007AFF, #5856D6)',
   'file-browser':   'linear-gradient(135deg, #5856D6, #AF52DE)',
-  'finviz-market':  'linear-gradient(135deg, #34C759, #30D158)',
-  'arxiv-kb':     'linear-gradient(135deg, #FF9500, #FF6B00)',
 }
 
 const DEFAULT_GRADIENT = 'linear-gradient(135deg, #8E8E93, #636366)'

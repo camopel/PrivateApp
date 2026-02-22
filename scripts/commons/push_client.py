@@ -41,7 +41,7 @@ async def send_push(
     Args:
         title: Notification title
         body:  Notification body text
-        url:   URL to open when tapped (e.g., /app/finviz-market/)
+        url:   URL to open when tapped (e.g., /app/system-monitor/)
         tag:   Optional tag for notification grouping/replacement
 
     Returns:
