@@ -9,11 +9,8 @@ Routes (mounted at /api/app/akb):
 """
 from __future__ import annotations
 
-import json
 import os
 import sqlite3
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
 
 import requests
 from fastapi import APIRouter, HTTPException, Query

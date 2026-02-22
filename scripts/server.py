@@ -26,9 +26,7 @@ import logging
 import os
 import platform
 import socket
-import sqlite3
 import sys
-import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import AsyncGenerator

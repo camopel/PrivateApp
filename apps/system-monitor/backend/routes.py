@@ -272,7 +272,6 @@ def _get_service_statuses() -> list[dict]:
 
 # ── Standalone mode ───────────────────────────────────────────────────
 if __name__ == "__main__":
-    import os
     from fastapi import FastAPI
     from fastapi.staticfiles import StaticFiles
     import uvicorn
