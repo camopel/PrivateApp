@@ -1,0 +1,11 @@
+node_modules/
+__pycache__/
+*.pyc
+dist/
+.venv/
+*.egg-info/
+.env
+scripts/config.json
+backup/
+static/
+registry/

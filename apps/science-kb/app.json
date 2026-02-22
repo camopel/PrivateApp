@@ -1,0 +1,14 @@
+{
+  "id": "science-kb",
+  "name": "ArXiv",
+  "shortcode": "skb",
+  "icon": "📄",
+  "version": "1.0.0",
+  "description": "Research paper search, summaries, and topic browser",
+  "author": "camopel",
+  "builtin": false,
+  "detect": {
+    "db_path": "~/Downloads/ScienceKB/sciencekb.db"
+  },
+  "frontend_route": "/app/science-kb"
+}
