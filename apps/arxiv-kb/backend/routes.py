@@ -22,7 +22,7 @@ from fastapi.responses import FileResponse
 
 router = APIRouter()
 
-DEFAULT_DATA_DIR = os.path.expanduser("~/workspace/arxivkb")
+DEFAULT_DATA_DIR = os.path.expanduser("~/Downloads/ArXivKB")
 
 # ---------------------------------------------------------------------------
 # LLM config cache (auto-expires after 5 min)
