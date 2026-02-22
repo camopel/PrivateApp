@@ -1,17 +1,16 @@
-"""OpenClaw messaging client for privateapp apps.
+"""OpenClaw messaging client for PrivateApp apps.
 
 Apps import this module to send messages to OpenClaw chat rooms
 (Matrix, Discord, Telegram, etc.) through the OpenClaw gateway API.
 
 Usage in an app's routes.py:
 
-    from privateapp_openclaw import send_message, get_gateway_url
+    from commons.openclaw_client import send_message
     await send_message("Alert: stock NVDA dropped 5%!", room="cronjob")
 
-The module auto-discovers the OpenClaw gateway:
+The module reads the gateway URL from:
   1. OPENCLAW_GATEWAY_URL env var
-  2. Read from ~/.openclaw/openclaw.json
-  3. Default: http://localhost:18789
+  2. Default: http://localhost:18789
 
 This is a lightweight HTTP client — no OpenClaw SDK required.
 """
@@ -22,31 +21,14 @@ import os
 import urllib.request
 import urllib.error
 import logging
-from pathlib import Path
 
 log = logging.getLogger("privateapp.openclaw_client")
 
 
 def get_gateway_url() -> str:
-    """Discover the OpenClaw gateway URL."""
-    # 1. Env var
-    url = os.environ.get("OPENCLAW_GATEWAY_URL")
-    if url:
-        return url.rstrip("/")
-
-    # 2. Read from config
-    config_path = Path.home() / ".openclaw" / "openclaw.json"
-    if config_path.exists():
-        try:
-            cfg = json.loads(config_path.read_text())
-            port = cfg.get("gateway", {}).get("port", 18789)
-            host = cfg.get("gateway", {}).get("host", "127.0.0.1")
-            return f"http://{host}:{port}"
-        except Exception:
-            pass
-
-    # 3. Default
-    return "http://localhost:18789"
+    """Get the OpenClaw gateway URL from env var or default."""
+    url = os.environ.get("OPENCLAW_GATEWAY_URL", "http://localhost:18789")
+    return url.rstrip("/")
 
 
 async def send_message(

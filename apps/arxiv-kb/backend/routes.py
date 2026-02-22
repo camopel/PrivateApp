@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
-import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -25,48 +24,14 @@ router = APIRouter()
 DEFAULT_DATA_DIR = os.path.expanduser("~/Downloads/ArXivKB")
 
 # ---------------------------------------------------------------------------
-# LLM config cache (auto-expires after 5 min)
+# LLM config — reads from env vars (set by server from config.json)
 # ---------------------------------------------------------------------------
-_llm_cache: dict = {"ts": 0, "endpoint": "", "model": ""}
-_LLM_CACHE_TTL = 300  # 5 minutes
-
-
 def _get_llm_config() -> dict:
-    """Read LLM endpoint/model from OpenClaw config, cached 5 min."""
-    now = time.time()
-    if now - _llm_cache["ts"] < _LLM_CACHE_TTL and _llm_cache["endpoint"]:
-        return _llm_cache
-
-    # Find OpenClaw config
-    oc_config = os.path.expanduser("~/.openclaw/openclaw.json")
-    if not os.path.exists(oc_config):
-        # Fallback: check OPENCLAW_CONFIG env
-        oc_config = os.environ.get("OPENCLAW_CONFIG", oc_config)
-
-    endpoint = "http://localhost:4000"
-    model = "claude-sonnet-4-6"
-
-    try:
-        cfg = json.loads(Path(oc_config).read_text())
-        providers = cfg.get("models", {}).get("providers", {})
-        # Pick first provider with a baseUrl
-        for name, p in providers.items():
-            base = p.get("baseUrl", "")
-            if base:
-                endpoint = base
-                # Pick a non-reasoning model (prefer sonnet for translation)
-                for m in p.get("models", []):
-                    mid = m.get("id", "")
-                    if "sonnet" in mid.lower():
-                        model = mid
-                        break
-                    model = mid  # fallback to first
-                break
-    except Exception:
-        pass
-
-    _llm_cache.update(ts=now, endpoint=endpoint, model=model)
-    return _llm_cache
+    """Return LLM endpoint + model from env vars."""
+    return {
+        "endpoint": os.environ.get("LLM_ENDPOINT", "http://localhost:11434"),
+        "model": os.environ.get("LLM_MODEL", "llama3"),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +71,10 @@ def _get_translate_language() -> str:
 def _translate(text: str, target_lang: str) -> str | None:
     """Translate text via LLM endpoint (auto-discovered from OpenClaw config)."""
     llm = _get_llm_config()
+    api_key = os.environ.get("LLM_API_KEY", "")
+    headers = {}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     try:
         resp = requests.post(
             f"{llm['endpoint']}/v1/chat/completions",
@@ -118,6 +87,7 @@ def _translate(text: str, target_lang: str) -> str | None:
                 "max_tokens": 2000,
                 "temperature": 0.1,
             },
+            headers=headers,
             timeout=30,
         )
         if resp.ok:
@@ -285,7 +255,8 @@ async def science_search(
         if scripts_dir not in sys.path:
             sys.path.insert(0, scripts_dir)
         # Also add the skill scripts dir
-        skill_dir = os.path.expanduser("~/.openclaw/workspace/skills/arxivkb/scripts")
+        skill_dir = os.environ.get("ARXIVKB_SKILL_DIR",
+                                     os.path.expanduser("~/.openclaw/workspace/skills/arxivkb/scripts"))
         if skill_dir not in sys.path:
             sys.path.insert(0, skill_dir)
         from search import search as semantic_search

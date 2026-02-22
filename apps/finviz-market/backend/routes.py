@@ -30,8 +30,9 @@ FINVIZ_DIR = Path(os.path.expanduser("~/Downloads/Finviz"))
 SUMMARY_CACHE_DIR = FINVIZ_DIR / "summaries"
 APP_SETTINGS_DIR = Path.home() / ".local" / "share" / "privateapp"
 
-LLM_ENDPOINT = os.environ.get("LLM_ENDPOINT", "http://localhost:4000")
-LLM_MODEL = os.environ.get("LLM_MODEL", "claude-sonnet-4-6")
+LLM_ENDPOINT = os.environ.get("LLM_ENDPOINT", "http://localhost:11434")
+LLM_MODEL = os.environ.get("LLM_MODEL", "llama3")
+LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
 
 _generating: dict[str, bool] = {}
 
@@ -266,10 +267,14 @@ Be concise but informative. Use bullet points.{lang_instruction}
         "max_tokens": 2000,
     }).encode()
 
+    headers = {"Content-Type": "application/json"}
+    if LLM_API_KEY:
+        headers["Authorization"] = f"Bearer {LLM_API_KEY}"
+
     req = urllib.request.Request(
         f"{LLM_ENDPOINT}/chat/completions",
         data=payload,
-        headers={"Content-Type": "application/json"},
+        headers=headers,
     )
     with urllib.request.urlopen(req, timeout=120) as resp:
         result = json.loads(resp.read())

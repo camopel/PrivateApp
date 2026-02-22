@@ -116,6 +116,15 @@ if _args.host:
 if _args.port:
     CONFIG["port"] = _args.port
 
+# ── Expose LLM config as env vars for apps ────────────────────────────
+_llm = CONFIG.get("llm", {})
+if _llm.get("endpoint") and "LLM_ENDPOINT" not in os.environ:
+    os.environ["LLM_ENDPOINT"] = _llm["endpoint"]
+if _llm.get("model") and "LLM_MODEL" not in os.environ:
+    os.environ["LLM_MODEL"] = _llm["model"]
+if _llm.get("api_key") and "LLM_API_KEY" not in os.environ:
+    os.environ["LLM_API_KEY"] = _llm["api_key"]
+
 # ── Push notification setup ───────────────────────────────────────────
 sys.path.insert(0, str(SCRIPTS_DIR))
 

@@ -249,7 +249,7 @@ export default function App() {
   }
 
   const downloadUrl = (p: string) => `${API}/download?path=${encodeURIComponent(p)}`
-  const root = listing?.root ?? '/home/ubuntu'
+  const root = listing?.root ?? ''
 
   const displayStr = displayPath(path || root, root)
   const segments = displayStr.split('/').filter(Boolean)

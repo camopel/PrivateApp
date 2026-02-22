@@ -246,7 +246,7 @@ npm run build
 
 # Restart server to pick up new app
 # (kill existing, then start)
-.venv/bin/python3 scripts/server.py --port 6000
+.venv/bin/python3 scripts/server.py --port 8800
 ```
 
 The app loader auto-discovers apps at startup — no registration needed.
@@ -299,7 +299,7 @@ from commons.openclaw_client import send_message_sync
 send_message_sync("Build complete", room="cronjob", channel="matrix")
 ```
 
-Auto-discovers the gateway via `OPENCLAW_GATEWAY_URL` env var → `~/.openclaw/openclaw.json` → `localhost:18789`.
+Reads gateway URL from `OPENCLAW_GATEWAY_URL` env var (default: `localhost:18789` — the standard OpenClaw gateway port).
 
 ### SQLite Helpers — `db`
 
