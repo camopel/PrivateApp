@@ -7,6 +7,12 @@ description: "Personal PWA dashboard server with plugin apps. Use when: (1) inst
 
 Personal PWA dashboard — FastAPI backend + React/Vite frontend with plugin apps.
 
+## Screenshots
+
+![Home](docs/screenshots/home.png)
+![System](docs/screenshots/system.png)
+![Files](docs/screenshots/files.png)
+
 ## Setup
 
 ```bash
