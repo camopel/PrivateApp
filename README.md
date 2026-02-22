@@ -2,6 +2,12 @@
 
 **PrivateApp** is a personal PWA dashboard for your home server. Install it on your phone's home screen for a native-like app with system monitoring and file browsing — all served privately over Tailscale VPN.
 
+## Screenshots
+
+![Home](docs/screenshots/home.png)
+![System](docs/screenshots/system.png)
+![Files](docs/screenshots/files.png)
+
 ## Apps
 
 | App | Description |
