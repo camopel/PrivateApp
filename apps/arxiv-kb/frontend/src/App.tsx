@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getApiBase } from './api'
 
-const API = getApiBase('skb')
+const API = getApiBase('akb')
 
 interface Paper {
   arxiv_id: string; title: string; published: string
@@ -33,7 +33,7 @@ export default function App() {
       fetch(`${API}/categories`).then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([s, c]) => {
       if (s) setStats(s)
-      else setError('ArXivKB database not found. Run: skb ingest')
+      else setError('ArXivKB database not found. Run: akb ingest')
       if (c?.categories) setCategories(c.categories)
       setLoading(false)
     })
@@ -204,7 +204,7 @@ export default function App() {
             ? <div className="loading">No categories found.</div>
             : <div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', padding: '8px 0 12px', textAlign: 'center' }}>
-                  ✅ = enabled for crawling · Manage: <code>/skb add cs.AI</code>
+                  ✅ = enabled for crawling · Manage: <code>/akb add cs.AI</code>
                 </div>
                 {(() => {
                   let curGroup = ''
