@@ -270,6 +270,85 @@ def _get_service_statuses() -> list[dict]:
     return services
 
 
+# ── System Actions (restart, shutdown, update) ───────────────────────
+
+@router.post("/action/restart")
+async def action_restart():
+    """Restart the system."""
+    try:
+        subprocess.Popen(["sudo", "reboot"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return {"status": "ok", "message": "System is restarting..."}
+    except Exception as e:
+        raise HTTPException(500, f"Failed to restart: {e}")
+
+
+@router.post("/action/shutdown")
+async def action_shutdown():
+    """Shutdown the system."""
+    try:
+        subprocess.Popen(["sudo", "shutdown", "-h", "now"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return {"status": "ok", "message": "System is shutting down..."}
+    except Exception as e:
+        raise HTTPException(500, f"Failed to shutdown: {e}")
+
+
+@router.post("/action/update")
+async def action_update():
+    """Run apt and snap update+upgrade to patch the system."""
+    import tempfile
+    log_file = os.path.join(tempfile.gettempdir(), "privateapp_update.log")
+    try:
+        script = (
+            f"exec > {log_file} 2>&1; "
+            "echo '=== Update started at '$(date)' ==='; "
+            "echo '--- apt update ---'; "
+            "sudo apt-get update -y; "
+            "echo '--- apt upgrade ---'; "
+            "sudo apt-get upgrade -y; "
+            "echo '--- apt autoremove ---'; "
+            "sudo apt-get autoremove -y; "
+            "echo '--- snap refresh ---'; "
+            "sudo snap refresh 2>/dev/null || true; "
+            "echo '=== Update completed at '$(date)' ==='"
+        )
+        proc = subprocess.Popen(
+            ["bash", "-c", script],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        return {"status": "ok", "message": "System update started. Check status for progress.", "pid": proc.pid, "log": log_file}
+    except Exception as e:
+        raise HTTPException(500, f"Failed to start update: {e}")
+
+
+@router.get("/action/update/status")
+async def update_status():
+    """Check the status of the last system update."""
+    import tempfile
+    log_file = os.path.join(tempfile.gettempdir(), "privateapp_update.log")
+    if not os.path.exists(log_file):
+        return {"running": False, "log": "", "message": "No update has been run yet"}
+
+    with open(log_file) as f:
+        log_content = f.read()
+
+    running = False
+    try:
+        r = subprocess.run(
+            ["pgrep", "-f", "apt-get upgrade"],
+            capture_output=True, text=True, timeout=3,
+        )
+        running = bool(r.stdout.strip())
+    except Exception:
+        pass
+
+    completed = "Update completed" in log_content
+    return {
+        "running": running,
+        "completed": completed,
+        "log": log_content[-2000:] if len(log_content) > 2000 else log_content,
+    }
+
+
 # ── Standalone mode ───────────────────────────────────────────────────
 if __name__ == "__main__":
     from fastapi import FastAPI

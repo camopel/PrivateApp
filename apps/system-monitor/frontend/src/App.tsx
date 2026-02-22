@@ -108,6 +108,39 @@ export default function App() {
   const [data, setData] = useState<SystemStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [actionMsg, setActionMsg] = useState<string | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const doAction = useCallback((action: string, label: string) => {
+    if (!confirm(`Are you sure you want to ${label.toLowerCase()}?`)) return
+    setActionLoading(action)
+    setActionMsg(null)
+    fetch(`${API}/action/${action}`, { method: 'POST' })
+      .then(r => r.json())
+      .then(d => {
+        setActionMsg(d.message || 'Done')
+        setActionLoading(null)
+        if (action === 'update') {
+          const poll = setInterval(() => {
+            fetch(`${API}/action/update/status`)
+              .then(r => r.json())
+              .then(s => {
+                if (s.completed) {
+                  setActionMsg('✅ System update completed!')
+                  clearInterval(poll)
+                } else if (s.running) {
+                  setActionMsg('⏳ Update in progress...')
+                } else {
+                  setActionMsg('✅ Update finished')
+                  clearInterval(poll)
+                }
+              })
+              .catch(() => clearInterval(poll))
+          }, 5000)
+        }
+      })
+      .catch(() => { setActionMsg(`Failed to ${label.toLowerCase()}`); setActionLoading(null) })
+  }, [])
 
   const fetchStats = useCallback(() => {
     fetch(`${API}/stats`)
@@ -251,6 +284,47 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="stat-card" style={{ display: 'flex', gap: 10, padding: 10 }}>
+              {[
+                { action: 'restart', label: 'Restart', icon: '🔄', color: '#ff9500' },
+                { action: 'shutdown', label: 'Shutdown', icon: '⏻', color: '#ff3b30' },
+                { action: 'update', label: 'Update', icon: '⬆️', color: '#34c759' },
+              ].map(btn => (
+                <button
+                  key={btn.action}
+                  onClick={() => doAction(btn.action, btn.label)}
+                  disabled={actionLoading !== null}
+                  style={{
+                    flex: 1,
+                    padding: '12px 8px',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    borderRadius: 12,
+                    border: 'none',
+                    cursor: actionLoading ? 'wait' : 'pointer',
+                    background: btn.color,
+                    color: '#fff',
+                    opacity: actionLoading && actionLoading !== btn.action ? 0.5 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                  }}
+                >
+                  {actionLoading === btn.action ? '⏳' : btn.icon} {btn.label}
+                </button>
+              ))}
+            </div>
+            {actionMsg && (
+              <div className="stat-card" style={{
+                textAlign: 'center', fontSize: 13,
+                color: 'var(--text-secondary, #888)',
+              }}>
+                {actionMsg}
               </div>
             )}
           </>
