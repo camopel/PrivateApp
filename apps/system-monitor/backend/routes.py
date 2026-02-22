@@ -272,11 +272,18 @@ def _get_service_statuses() -> list[dict]:
 
 # ── System Actions (restart, shutdown, update) ───────────────────────
 
+_IS_MACOS = platform.system() == "Darwin"
+_IS_LINUX = platform.system() == "Linux"
+
+
 @router.post("/action/restart")
 async def action_restart():
     """Restart the system."""
     try:
-        subprocess.Popen(["sudo", "reboot"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if _IS_MACOS:
+            subprocess.Popen(["sudo", "shutdown", "-r", "now"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            subprocess.Popen(["sudo", "reboot"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         return {"status": "ok", "message": "System is restarting..."}
     except Exception as e:
         raise HTTPException(500, f"Failed to restart: {e}")
@@ -294,23 +301,40 @@ async def action_shutdown():
 
 @router.post("/action/update")
 async def action_update():
-    """Run apt and snap update+upgrade to patch the system."""
+    """Run system package updates (apt on Linux, softwareupdate + brew on macOS)."""
     import tempfile
     log_file = os.path.join(tempfile.gettempdir(), "privateapp_update.log")
     try:
-        script = (
-            f"exec > {log_file} 2>&1; "
-            "echo '=== Update started at '$(date)' ==='; "
-            "echo '--- apt update ---'; "
-            "sudo apt-get update -y; "
-            "echo '--- apt upgrade ---'; "
-            "sudo apt-get upgrade -y; "
-            "echo '--- apt autoremove ---'; "
-            "sudo apt-get autoremove -y; "
-            "echo '--- snap refresh ---'; "
-            "sudo snap refresh 2>/dev/null || true; "
-            "echo '=== Update completed at '$(date)' ==='"
-        )
+        if _IS_MACOS:
+            script = (
+                f"exec > {log_file} 2>&1; "
+                "echo '=== Update started at '$(date)' ==='; "
+                "echo '--- softwareupdate ---'; "
+                "softwareupdate -ia 2>&1 || true; "
+                "if command -v brew &>/dev/null; then "
+                "  echo '--- brew update ---'; "
+                "  brew update; "
+                "  echo '--- brew upgrade ---'; "
+                "  brew upgrade; "
+                "  echo '--- brew cleanup ---'; "
+                "  brew cleanup; "
+                "fi; "
+                "echo '=== Update completed at '$(date)' ==='"
+            )
+        else:
+            script = (
+                f"exec > {log_file} 2>&1; "
+                "echo '=== Update started at '$(date)' ==='; "
+                "echo '--- apt update ---'; "
+                "sudo apt-get update -y; "
+                "echo '--- apt upgrade ---'; "
+                "sudo apt-get upgrade -y; "
+                "echo '--- apt autoremove ---'; "
+                "sudo apt-get autoremove -y; "
+                "echo '--- snap refresh ---'; "
+                "sudo snap refresh 2>/dev/null || true; "
+                "echo '=== Update completed at '$(date)' ==='"
+            )
         proc = subprocess.Popen(
             ["bash", "-c", script],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -333,11 +357,15 @@ async def update_status():
 
     running = False
     try:
-        r = subprocess.run(
-            ["pgrep", "-f", "apt-get upgrade"],
-            capture_output=True, text=True, timeout=3,
-        )
-        running = bool(r.stdout.strip())
+        patterns = ["apt-get upgrade", "softwareupdate", "brew upgrade"]
+        for pat in patterns:
+            r = subprocess.run(
+                ["pgrep", "-f", pat],
+                capture_output=True, text=True, timeout=3,
+            )
+            if r.stdout.strip():
+                running = True
+                break
     except Exception:
         pass
 
