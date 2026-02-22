@@ -120,24 +120,9 @@ export default function App() {
       .then(d => {
         setActionMsg(d.message || 'Done')
         setActionLoading(null)
-        if (action === 'update') {
-          const poll = setInterval(() => {
-            fetch(`${API}/action/update/status`)
-              .then(r => r.json())
-              .then(s => {
-                if (s.completed) {
-                  setActionMsg('✅ System update completed!')
-                  clearInterval(poll)
-                } else if (s.running) {
-                  setActionMsg('⏳ Update in progress...')
-                } else {
-                  setActionMsg('✅ Update finished')
-                  clearInterval(poll)
-                }
-              })
-              .catch(() => clearInterval(poll))
-          }, 5000)
-        }
+      })
+      .catch(() => { setActionMsg(`Failed to ${label.toLowerCase()}`); setActionLoading(null) })
+  }, [])
       })
       .catch(() => { setActionMsg(`Failed to ${label.toLowerCase()}`); setActionLoading(null) })
   }, [])
@@ -292,7 +277,6 @@ export default function App() {
               {[
                 { action: 'restart', label: 'Restart', icon: '🔄', color: '#ff9500' },
                 { action: 'shutdown', label: 'Shutdown', icon: '⏻', color: '#ff3b30' },
-                { action: 'update', label: 'Update', icon: '⬆️', color: '#34c759' },
               ].map(btn => (
                 <button
                   key={btn.action}
