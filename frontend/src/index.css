@@ -253,6 +253,25 @@ body {
   white-space: nowrap;
 }
 
+/* ── Drag & reorder ── */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+.app-tile.wiggle {
+  animation: wiggle 0.3s ease-in-out infinite;
+}
+
+.app-tile.dragging {
+  opacity: 0.4;
+}
+
+.app-tile.drop-target .app-icon-wrap {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px var(--accent), 0 2px 8px rgba(0,0,0,0.2);
+}
+
 /* ── Stat cards (system monitor) ── */
 .stat-card {
   background: var(--card-bg);

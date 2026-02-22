@@ -8,7 +8,7 @@
   "author": "camopel",
   "builtin": false,
   "detect": {
-    "db_path": "~/workspace/arxivkb/arxivkb.db"
+    "db_path": "~/Downloads/ArXivKB/arxivkb.db"
   },
   "frontend_route": "/app/arxiv-kb"
 }

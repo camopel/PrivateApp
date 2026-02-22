@@ -18,14 +18,14 @@ self.addEventListener('push', event => {
   try {
     data = event.data.json()
   } catch {
-    data = { title: 'Private App', body: event.data.text() }
+    data = { title: 'Notification', body: event.data.text() }
   }
 
   const options = {
     body: data.body ?? '',
     icon: data.icon ?? '/icon-192.png',
     badge: '/icon-192.png',
-    tag: data.tag ?? 'privateapp',
+    tag: data.tag ?? 'default',
     data: { url: data.url ?? '/' },
     vibrate: [200, 100, 200],
     requireInteraction: false,

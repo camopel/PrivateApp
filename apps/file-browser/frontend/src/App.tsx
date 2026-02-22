@@ -328,31 +328,20 @@ export default function App() {
   // ── Directory listing ──
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)', fontFamily: '-apple-system, BlinkMacSystemFont, system-ui, sans-serif' }}>
-      {/* Breadcrumb bar */}
+      {/* Nav bar */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: 2, padding: '12px 16px',
+        display: 'flex', alignItems: 'center', padding: '12px 16px',
         paddingTop: 'calc(12px + env(safe-area-inset-top, 0px))',
-        fontSize: 13, color: 'var(--text-secondary)', overflowX: 'auto', whiteSpace: 'nowrap',
-        background: 'var(--card-bg)',
+        background: 'var(--card-bg)', borderBottom: '0.5px solid var(--border)',
       }}>
         <a href="/" style={{
           fontSize: 15, color: 'var(--accent)', textDecoration: 'none',
           padding: '4px 8px 4px 0', flexShrink: 0, whiteSpace: 'nowrap',
         }}>← Back</a>
-        {breadcrumbs.map((bc, i) => (
-          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {i > 0 && <span style={{ color: 'var(--border)', margin: '0 1px' }}>/</span>}
-            <button onClick={() => setPath(bc.path)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, fontSize: 13,
-                color: i === breadcrumbs.length - 1 ? 'var(--text)' : 'var(--accent)',
-                fontWeight: i === breadcrumbs.length - 1 ? 600 : 400,
-              }}>{bc.label}</button>
-          </span>
-        ))}
+        <div style={{ flex: 1, fontSize: 17, fontWeight: 600, textAlign: 'center' }}>File Browser</div>
         {/* Toggle hidden files */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Hidden</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+          <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>Hidden</span>
           <button onClick={() => setShowHidden(h => !h)} style={{
             background: showHidden ? 'var(--accent)' : 'var(--border)',
             border: 'none', borderRadius: 12, width: 40, height: 24, cursor: 'pointer',
@@ -365,6 +354,25 @@ export default function App() {
             }} />
           </button>
         </div>
+      </div>
+
+      {/* Breadcrumbs */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 2, padding: '8px 16px',
+        fontSize: 13, color: 'var(--text-secondary)', overflowX: 'auto', whiteSpace: 'nowrap',
+        background: 'var(--card-bg)', borderBottom: '0.5px solid var(--border)',
+      }}>
+        {breadcrumbs.map((bc, i) => (
+          <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {i > 0 && <span style={{ color: 'var(--border)', margin: '0 1px' }}>/</span>}
+            <button onClick={() => setPath(bc.path)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, fontSize: 13,
+                color: i === breadcrumbs.length - 1 ? 'var(--text)' : 'var(--accent)',
+                fontWeight: i === breadcrumbs.length - 1 ? 600 : 400,
+              }}>{bc.label}</button>
+          </span>
+        ))}
       </div>
 
       {/* Listing — flush under breadcrumbs */}

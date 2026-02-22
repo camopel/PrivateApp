@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PrivateApp install script
+# Private App install script
 # Supports macOS and Linux
 # Usage: bash scripts/install.sh [--port PORT]
 set -euo pipefail
@@ -29,7 +29,7 @@ case "$OS" in
     *)       echo "❌ Unsupported platform: $OS"; exit 1 ;;
 esac
 
-echo "🏠 PrivateApp Install"
+echo "🏠 Private App Install"
 echo "=================="
 echo "Platform : $PLATFORM"
 echo "Port     : $PORT"
@@ -149,7 +149,6 @@ if [[ -f "$VAPID_PRIVATE" && -f "$VAPID_PUBLIC" ]]; then
 else
     "$VENV_PYTHON" - <<'PYEOF'
 import sys, os
-sys.path.insert(0, os.environ.get('SCRIPTS_DIR', ''))
 data_dir = os.path.expanduser('~/.local/share/privateapp')
 private_pem = os.path.join(data_dir, 'vapid_private.pem')
 public_txt  = os.path.join(data_dir, 'vapid_public.txt')
@@ -171,7 +170,6 @@ except Exception as e:
     print("     Run scripts/install.py manually after install.")
 PYEOF
 fi
-export SCRIPTS_DIR="$SCRIPT_DIR"
 
 # ── 6. Write config.json ───────────────────────────────────────────────
 echo ""
@@ -191,17 +189,30 @@ cat > "$CONFIG_FILE" <<JSONEOF
 JSONEOF
 echo "  ✅ Config written to $CONFIG_FILE"
 
-# ── 7. Build frontend ──────────────────────────────────────────────────
+# ── 7. Build all frontends ─────────────────────────────────────────────
 if [[ "$BUILD_FRONTEND" == "true" ]]; then
     echo ""
-    echo "🔨 Building frontend..."
+    echo "🔨 Building shell frontend..."
     FRONTEND_DIR="$PROJECT_DIR/frontend"
     if [[ -f "$FRONTEND_DIR/package.json" ]]; then
         (cd "$FRONTEND_DIR" && npm install --silent && npm run build)
-        echo "  ✅ Frontend built to static/dist/"
+        echo "  ✅ Shell frontend built → static/dist/"
     else
-        echo "  ⚠️  frontend/package.json not found — skipping build"
+        echo "  ⚠️  frontend/package.json not found — skipping shell build"
     fi
+
+    echo ""
+    echo "🔨 Building app frontends..."
+    for APP_DIR in "$PROJECT_DIR"/apps/*/; do
+        APP_NAME="$(basename "$APP_DIR")"
+        APP_FRONTEND="$APP_DIR/frontend"
+        if [[ -f "$APP_FRONTEND/package.json" ]]; then
+            echo "  📦 Building $APP_NAME..."
+            (cd "$APP_FRONTEND" && npm install --silent && npm run build)
+            echo "  ✅ $APP_NAME built"
+        fi
+    done
+    echo "  ✅ All app frontends built"
 fi
 
 # ── 8. Tailscale ──────────────────────────────────────────────────────
@@ -213,11 +224,9 @@ if check_command tailscale; then
     SETUP_TS="${SETUP_TS:-Y}"
     if [[ "$SETUP_TS" =~ ^[Yy] ]]; then
         HTTPS_PORT=443
-        # Try tailscale serve
         if sudo tailscale serve --bg --https "$HTTPS_PORT" "http://127.0.0.1:$PORT" 2>/dev/null; then
             echo "  ✅ Tailscale serve configured (HTTPS on :$HTTPS_PORT)"
         else
-            # Fallback: try a different HTTPS port
             HTTPS_PORT=$((PORT + 443))
             if sudo tailscale serve --bg --https "$HTTPS_PORT" "http://127.0.0.1:$PORT" 2>/dev/null; then
                 echo "  ✅ Tailscale serve configured (HTTPS on :$HTTPS_PORT)"
@@ -266,7 +275,7 @@ if [[ "$PLATFORM" == "linux" ]]; then
     SERVICE_FILE="$SERVICE_DIR/privateapp.service"
     cat > "$SERVICE_FILE" <<SVCEOF
 [Unit]
-Description=PrivateApp Personal Dashboard
+Description=Private App Personal Dashboard
 After=network-online.target
 
 [Service]
@@ -328,7 +337,7 @@ fi
 # ── 10. Done ───────────────────────────────────────────────────────────
 echo ""
 echo "╔══════════════════════════════════════╗"
-echo "║        ✅ PrivateApp Installed!          ║"
+echo "║        ✅ Private App Installed!         ║"
 echo "╚══════════════════════════════════════╝"
 echo ""
 echo "Start the server:"

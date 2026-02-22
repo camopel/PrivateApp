@@ -458,6 +458,7 @@ async def api_settings_preferences_get():
     return {
         "timezone": get_preference("timezone", "America/Los_Angeles"),
         "language": get_preference("language", "English"),
+        "app_order": get_preference("app_order", ""),
     }
 
 
@@ -469,10 +470,13 @@ async def api_settings_preferences_set(request: Request):
         set_preference("timezone", data["timezone"])
     if "language" in data:
         set_preference("language", data["language"])
+    if "app_order" in data:
+        set_preference("app_order", data["app_order"])
     return {
         "ok": True,
         "timezone": get_preference("timezone", "America/Los_Angeles"),
         "language": get_preference("language", "English"),
+        "app_order": get_preference("app_order", ""),
     }
 
 
@@ -504,7 +508,7 @@ async def push_unsubscribe(request: Request):
 async def push_send(request: Request):
     data = await request.json()
     sent = send_push_notification(
-        data.get("title", "privateapp"),
+        data.get("title", "Notification"),
         data.get("body", ""),
         url=data.get("url", "/"),
         tag=data.get("tag"),
@@ -515,7 +519,7 @@ async def push_send(request: Request):
 @app.get("/api/push/test")
 async def push_test():
     sent = send_push_notification(
-        "privateapp", "Push notifications are working! 🎉", url="/", tag="test"
+        "Test", "Push notifications are working! 🎉", url="/", tag="test"
     )
     return {"sent": sent, "subscribers": len(get_all_subscriptions())}
 
