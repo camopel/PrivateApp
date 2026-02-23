@@ -9,9 +9,9 @@ Personal PWA dashboard — FastAPI backend + React/Vite frontend with plugin app
 
 ## Screenshots
 
-![Home](docs/screenshots/home.png)
-![System](docs/screenshots/system.png)
-![Files](docs/screenshots/files.png)
+![Home](assets/screenshots/home.png)
+![System](assets/screenshots/system.png)
+![Files](assets/screenshots/files.png)
 
 ## Setup
 
